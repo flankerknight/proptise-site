@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Genius Prompts is an AI problem-solving toolkit for Indian users. Copy expert AI requests for ChatGPT, Gemini, Claude, and Perplexity."
+    />
+    <title>Genius Prompts | AI Problem-Solving Toolkit</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="site-header" data-elevated="false">
+      <a class="brand" href="#top" aria-label="Genius Prompts home">
+        <span class="brand-mark">GP</span>
+        <span>
+          <strong>Genius Prompts</strong>
+          <small>India</small>
+        </span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#problems">Use cases</a>
+        <a href="#categories">Categories</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#how">How it works</a>
+      </nav>
+      <button class="header-action" data-scroll-to="builder">Generate Better Prompt</button>
+    </header>
+
+    <main id="top">
+      <section class="hero-section">
+        <div class="hero-copy">
+          <p class="eyebrow">AI problem-solving toolkit for India</p>
+          <h1>Turn simple questions into expert-level AI prompts.</h1>
+          <p class="hero-lede">
+            Copy-paste smarter prompts for ChatGPT, Gemini, Claude, and Perplexity
+            across fitness, jobs, travel, business, shopping, finance, dating, emails,
+            and more.
+          </p>
+          <div class="hero-actions">
+            <button class="primary-action" data-scroll-to="builder">Generate Better Prompt</button>
+            <button class="secondary-action" data-scroll-to="problems">Try example shortcuts</button>
+          </div>
+          <div class="trust-row" aria-label="Product highlights">
+            <span>3 free previews</span>
+            <span>English, Hinglish, Hindi</span>
+            <span>ChatGPT, Gemini, Claude, Perplexity</span>
+            <span>UPI ready</span>
+          </div>
+        </div>
+
+        <aside class="hero-console" aria-label="Genius Prompts product preview">
+          <div class="console-topbar">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="console-body">
+            <div class="metric-strip">
+              <div>
+                <small>Toolkit</small>
+                <strong>Real-life shortcuts</strong>
+              </div>
+              <div>
+                <small>Best value</small>
+                <strong>Rs 299</strong>
+              </div>
+            </div>
+            <div class="prompt-card active">
+              <span>Without Genius Prompts</span>
+              <p>Tell me diet for diabetes.</p>
+            </div>
+            <div class="prompt-card">
+              <span>With Genius Prompts</span>
+              <p>
+                Ask focused questions, build an Indian meal plan, add red flags,
+                grocery list, doctor-check points, and a next action.
+              </p>
+            </div>
+            <div class="prompt-card">
+              <span>Copy to AI</span>
+              <p>
+                Paste into ChatGPT, Gemini, Claude, or Perplexity and get a more useful answer.
+              </p>
+            </div>
+            <div class="checkout-preview">
+              <div>
+                <small>UPI checkout</small>
+                <strong>Manual or gateway</strong>
+              </div>
+              <button data-scroll-to="pricing">Start</button>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="section-panel" id="problems">
+        <div class="section-heading">
+          <p class="eyebrow">Start with the problem</p>
+          <h2>What do you want AI to help you with today?</h2>
+          <p>
+            Most users do not want to buy text. They want a shortcut to a better
+            answer, faster decision, cleaner message, stronger plan, or smarter comparison.
+          </p>
+        </div>
+        <div class="problem-grid" id="problemGrid"></div>
+      </section>
+
+      <section class="section-panel before-after-section" id="demo">
+        <div class="section-heading">
+          <p class="eyebrow">Before / after demo</p>
+          <h2>Average prompts get average answers. Expert AI requests change the output.</h2>
+        </div>
+        <div class="before-after-grid">
+          <article>
+            <span>Weak user input</span>
+            <p>best diet for diabetic weight loss</p>
+          </article>
+          <article>
+            <span>Improved generated prompt</span>
+            <p>
+              Act as a diabetes-aware Indian nutrition planning assistant. Use my request:
+              “best diet for diabetic weight loss.” Ask missing medical/context questions first,
+              give safe Indian meal options, portion logic, red flags, grocery list, what to verify
+              with a doctor, and a 7-day next action plan.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-panel" id="categories">
+        <div class="section-heading">
+          <p class="eyebrow">Browse by category</p>
+          <h2>Twenty categories are the backup path, not the whole product.</h2>
+          <p>
+            Customers can still browse the full library, but credits stay flexible.
+            Use all credits in one category or move across jobs, finance, health,
+            shopping, travel, social media, auto, and more.
+          </p>
+        </div>
+        <div class="category-tools">
+          <label class="search-control">
+            <span>Search categories</span>
+            <input id="categorySearch" type="search" placeholder="Try cars, bikes, finance, jobs..." />
+          </label>
+          <div class="pack-toggle" aria-label="Solution pack selector">
+            <button class="active" data-pack="starter">10 requests</button>
+            <button data-pack="pro">25 requests</button>
+            <button data-pack="complete">Unlimited</button>
+          </div>
+        </div>
+        <div class="credit-note">
+          <strong>Solution credits are shared across the whole toolkit.</strong>
+          <span>Example: the Starter Pack means 10 total expert AI requests, not 10 inside every category.</span>
+        </div>
+        <div class="category-grid" id="categoryGrid"></div>
+      </section>
+
+      <section class="split-section" id="builder">
+        <div class="builder-panel">
+          <div class="section-heading compact">
+            <p class="eyebrow">Free prompt preview</p>
+            <h2>Generate an expert AI request before buying.</h2>
+            <p>
+              Pick a category, write the messy real-life question, choose a language,
+              and the backend engine selects the best prompt blueprint.
+            </p>
+          </div>
+          <div class="preview-controls">
+            <label>
+              Category
+              <select id="previewCategory"></select>
+            </label>
+            <label>
+              Output language
+              <select id="previewLanguage"></select>
+            </label>
+            <label class="intent-control">
+              What do you want help with?
+              <input id="intentInput" type="text" placeholder="Example: compare iPhone 17 Pro Max vs S26 Ultra for video shooting" />
+            </label>
+          </div>
+          <p class="mismatch-note" id="previewMismatchNote" hidden></p>
+          <button class="primary-action full-width" id="generatePreview" type="button">Generate Better Prompt</button>
+        </div>
+        <div class="locked-preview">
+          <div class="preview-header">
+            <span id="previewBadge">Prompt preview</span>
+            <strong id="previewTitle">Loading...</strong>
+          </div>
+          <div class="prompt-toolbar">
+            <small class="engine-meta" id="engineMeta">Engine match loading...</small>
+            <button class="copy-action" id="copyPreview" type="button">Copy sample</button>
+          </div>
+          <p id="previewText"></p>
+          <div class="lock-box">
+            <span class="lock-icon">LOCK</span>
+            <div>
+              <strong>Full prompt unlocks after payment</strong>
+              <p>
+                Includes role, context, constraints, output format, follow-up questions,
+                and quality checks.
+              </p>
+            </div>
+          </div>
+          <button class="primary-action full-width" data-scroll-to="pricing">Choose a pack</button>
+        </div>
+      </section>
+
+      <section class="section-panel" id="pricing">
+        <div class="section-heading">
+          <p class="eyebrow">Pricing</p>
+          <h2>Buy better AI answers, not random prompt text.</h2>
+          <p>
+            Start cheap, upgrade when the toolkit saves you time. Each solution credit
+            becomes one expert AI request you can paste into ChatGPT, Gemini, Claude, or Perplexity.
+          </p>
+        </div>
+        <div class="pricing-grid" id="pricingGrid"></div>
+      </section>
+
+      <section class="workflow-section" id="how">
+        <div class="section-heading compact">
+          <p class="eyebrow">How it works</p>
+          <h2>Three steps from confused question to expert-style AI answer.</h2>
+        </div>
+        <div class="workflow-grid">
+          <article>
+            <span>01</span>
+            <h3>Pick a real problem</h3>
+            <p>Choose a use-case card or category, then type the question exactly like a normal person would.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Copy the expert request</h3>
+            <p>The engine adds role, context, guardrails, output format, resources, and language mode.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Paste into your AI app</h3>
+            <p>Use ChatGPT, Gemini, Claude, or Perplexity and get a structured answer faster.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-shell" id="checkoutModal" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal></div>
+      <section class="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+        <button class="modal-close" data-close-modal aria-label="Close checkout">X</button>
+        <div>
+          <p class="eyebrow">Secure checkout</p>
+          <h2 id="checkoutTitle">Complete your purchase</h2>
+          <p id="checkoutDescription"></p>
+        </div>
+        <div class="payment-box">
+          <div class="qr-card" aria-label="Genius Prompts UPI QR code">
+            <img src="./assets/genius-prompts-upi-qr.jpg" alt="Genius Prompts UPI QR code" />
+            <strong>Scan to pay</strong>
+            <small>UPI ID: ambar8@ptyes</small>
+          </div>
+          <div class="payment-details">
+            <dl>
+              <div>
+                <dt>Amount</dt>
+                <dd id="checkoutAmount">Rs 0</dd>
+              </div>
+              <div>
+                <dt>UPI ID</dt>
+                <dd id="upiIdLabel">ambar8@ptyes</dd>
+              </div>
+              <div>
+                <dt>Access</dt>
+                <dd id="checkoutAccess">AI shortcut pack</dd>
+              </div>
+            </dl>
+            <div class="payment-methods" aria-label="Payment options">
+              <button class="primary-action" id="dodoCheckoutButton" type="button">Pay by UPI or card</button>
+              <button class="secondary-action" id="copyUpiId" type="button">Copy UPI ID</button>
+              <a class="secondary-action link-action" id="upiPayLink" href="#">Open default UPI app</a>
+            </div>
+            <p class="form-note">
+              Pay securely with Dodo Payments when configured, or use manual UPI by scanning the QR / paying to the UPI ID.
+            </p>
+          </div>
+        </div>
+        <form class="verification-form" id="verificationForm" action="./success.html" method="get">
+          <input type="hidden" name="plan" id="checkoutPlanInput" value="starter" />
+          <label>
+            Payment app used
+            <select name="paymentApp" id="paymentApp">
+              <option value="Google Pay">Google Pay</option>
+              <option value="PhonePe">PhonePe</option>
+              <option value="Paytm">Paytm</option>
+              <option value="BHIM">BHIM</option>
+              <option value="Other UPI app">Other UPI app</option>
+            </select>
+          </label>
+          <label>
+            Email or WhatsApp
+            <input name="contact" id="checkoutContact" type="text" placeholder="example@email.com or +91..." required />
+          </label>
+          <label>
+            UPI transaction ID
+            <input name="transaction" type="text" placeholder="Enter UPI reference number" required />
+          </label>
+          <button class="secondary-action full-width" type="submit">Submit and open unlocked dashboard</button>
+          <p class="form-note" id="verificationNote">
+            Demo flow: this opens the post-payment dashboard. Production will verify the UPI reference before unlocking solution credits.
+          </p>
+        </form>
+      </section>
+    </div>
+
+    <div class="modal-shell" id="mismatchModal" aria-hidden="true">
+      <div class="modal-backdrop" data-mismatch-action="edit"></div>
+      <section class="checkout-modal mismatch-dialog" role="dialog" aria-modal="true" aria-labelledby="mismatchTitle">
+        <div>
+          <p class="eyebrow">Category check</p>
+          <h2 id="mismatchTitle">This request may fit another category.</h2>
+          <p id="mismatchMessage"></p>
+        </div>
+        <div class="mismatch-actions">
+          <button class="primary-action" type="button" data-mismatch-action="switch">Switch category</button>
+          <button class="secondary-action" type="button" data-mismatch-action="continue">Continue anyway</button>
+          <button class="secondary-action" type="button" data-mismatch-action="edit">Edit request</button>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer">
+      <strong>Genius Prompts</strong>
+      <span>AI shortcuts for Indian users. Manual UPI verification MVP.</span>
+      <nav class="footer-links" aria-label="Legal pages">
+        <a href="./terms.html">Terms</a>
+        <a href="./privacy.html">Privacy</a>
+        <a href="./refund.html">Refund</a>
+        <a href="./contact.html">Contact</a>
+      </nav>
+    </footer>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

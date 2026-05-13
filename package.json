@@ -1,0 +1,11 @@
+{
+  "name": "genius-prompts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node backend/server.mjs",
+    "build": "npm run check",
+    "check": "node --check src/app.js && node --check src/success.js && node --check backend/server.mjs && node --check backend/prompt-engine.mjs && node --check backend/dodo-checkout.mjs && node --check api/generate-prompt.js && node --check api/create-checkout.js"
+  }
+}

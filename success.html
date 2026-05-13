@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unlocked | Genius Prompts</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="site-header" data-elevated="true">
+      <a class="brand" href="./index.html" aria-label="Genius Prompts home">
+        <span class="brand-mark">GP</span>
+        <span>
+          <strong>Genius Prompts</strong>
+          <small>Unlocked</small>
+        </span>
+      </a>
+      <button class="header-action" id="resetCredits">Reset demo</button>
+    </header>
+
+    <main class="unlock-main">
+      <section class="unlock-hero">
+        <div>
+          <p class="eyebrow">Payment submitted</p>
+          <h1>Your AI shortcut pack is unlocked.</h1>
+          <p class="hero-lede">
+            This is the paid-user dashboard. Solution credits are shared across every
+            category, so you can use them all in one area or spread them across finance,
+            jobs, health, shopping, travel, creators, auto, and more.
+          </p>
+        </div>
+        <aside class="credits-panel">
+          <span id="planName">Starter Pack</span>
+          <strong id="creditsRemaining">10</strong>
+          <small>solution credits remaining</small>
+        </aside>
+      </section>
+
+      <section class="unlock-workspace">
+        <div class="builder-panel">
+          <div class="section-heading compact">
+            <p class="eyebrow">Generate prompt</p>
+            <h2>Use one shared credit per expert AI request.</h2>
+            <p>
+              Pick any category, write what you need in normal words, choose a language,
+              and the backend engine will choose the best prompt blueprint.
+            </p>
+          </div>
+          <div class="preview-controls">
+            <label>
+              Category
+              <select id="unlockCategory"></select>
+            </label>
+            <label>
+              Output language
+              <select id="unlockLanguage"></select>
+            </label>
+            <label class="intent-control">
+              What do you want help with?
+              <input id="unlockIntent" type="text" placeholder="Example: compare iPhone 17 Pro Max vs S26 Ultra for video shooting" />
+            </label>
+          </div>
+          <p class="mismatch-note" id="unlockMismatchNote" hidden></p>
+          <button class="primary-action full-width" id="generateUnlocked">Generate expert AI request</button>
+          <div class="history-panel">
+            <strong>Saved prompt history</strong>
+            <div id="promptHistory" class="history-list"></div>
+          </div>
+        </div>
+
+        <div class="locked-preview">
+          <div class="preview-header">
+            <span id="unlockBadge">Unlocked prompt</span>
+            <strong id="unlockTitle">Ready when you are</strong>
+          </div>
+          <div class="prompt-toolbar">
+            <small class="engine-meta" id="unlockMeta">Backend engine ready</small>
+            <button class="copy-action" id="copyPrompt" type="button">Copy to ChatGPT</button>
+          </div>
+          <p id="unlockPrompt">Choose a category and generate your first expert AI request.</p>
+          <div class="lock-box">
+            <span class="lock-icon">LIVE</span>
+            <div>
+              <strong>Demo behavior</strong>
+              <p>
+                This page uses browser storage for credits. Production should store
+                orders and unlocks in Supabase or another backend database.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="modal-shell" id="mismatchModal" aria-hidden="true">
+      <div class="modal-backdrop" data-mismatch-action="edit"></div>
+      <section class="checkout-modal mismatch-dialog" role="dialog" aria-modal="true" aria-labelledby="mismatchTitle">
+        <div>
+          <p class="eyebrow">Category check</p>
+          <h2 id="mismatchTitle">This request may fit another category.</h2>
+          <p id="mismatchMessage"></p>
+        </div>
+        <div class="mismatch-actions">
+          <button class="primary-action" type="button" data-mismatch-action="switch">Switch category</button>
+          <button class="secondary-action" type="button" data-mismatch-action="continue">Continue anyway</button>
+          <button class="secondary-action" type="button" data-mismatch-action="edit">Edit request</button>
+        </div>
+      </section>
+    </div>
+
+    <footer class="site-footer">
+      <strong>Genius Prompts</strong>
+      <span>Manual UPI verification MVP.</span>
+      <nav class="footer-links" aria-label="Legal pages">
+        <a href="./terms.html">Terms</a>
+        <a href="./privacy.html">Privacy</a>
+        <a href="./refund.html">Refund</a>
+        <a href="./contact.html">Contact</a>
+      </nav>
+    </footer>
+
+    <script type="module" src="./src/success.js"></script>
+  </body>
+</html>
