@@ -420,6 +420,14 @@ select:focus {
   color: #ffffff;
 }
 
+.single-plan-pill {
+  max-width: 320px;
+}
+
+.single-plan-pill button {
+  width: 100%;
+}
+
 .credit-note {
   display: flex;
   justify-content: space-between;
@@ -795,7 +803,8 @@ select:focus {
 }
 
 .pricing-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 520px);
+  justify-content: center;
   align-items: stretch;
 }
 
@@ -1057,6 +1066,27 @@ select:focus {
   margin: 1.4rem 0;
 }
 
+.gateway-box {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(260px, 1.05fr);
+}
+
+.gateway-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(23, 107, 79, 0.18);
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #f4fbf5, #ffffff);
+  padding: 1rem;
+}
+
+.gateway-card p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .qr-card {
   display: grid;
   flex: 0 0 210px;
@@ -1277,8 +1307,13 @@ button:disabled {
   .credit-note,
   .problem-grid,
   .category-grid,
+  .gateway-box,
   .payment-box {
     width: 100%;
+  }
+
+  .gateway-box {
+    grid-template-columns: 1fr;
   }
 
   .credit-note {

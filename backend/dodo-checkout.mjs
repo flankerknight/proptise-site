@@ -4,20 +4,11 @@ const checkoutBaseUrls = {
 };
 
 const planCatalog = {
-  starter: {
-    name: "Starter Pack",
-    credits: 10,
-    productEnv: "DODO_PRODUCT_STARTER",
-  },
   pro: {
-    name: "Plus",
-    credits: 25,
-    productEnv: "DODO_PRODUCT_PLUS",
-  },
-  complete: {
-    name: "Pro",
-    credits: "unlimited",
-    productEnv: "DODO_PRODUCT_PRO",
+    name: "Pro Lifetime",
+    credits: "lifetime",
+    productEnv: "DODO_PRODUCT_LIFETIME",
+    fallbackProductEnv: "DODO_PRODUCT_PLUS",
   },
 };
 
@@ -52,14 +43,14 @@ export function getDodoConfig() {
 }
 
 export async function createDodoCheckout(payload = {}, request) {
-  const planId = payload.planId || "starter";
+  const planId = "pro";
   const plan = planCatalog[planId];
   if (!plan) {
     return { ok: false, status: 400, error: "Unknown plan selected." };
   }
 
   const { apiKey, baseUrl, environment } = getDodoConfig();
-  const productId = process.env[plan.productEnv];
+  const productId = process.env[plan.productEnv] || process.env[plan.fallbackProductEnv];
   if (!apiKey || !productId) {
     return {
       ok: false,
@@ -67,7 +58,7 @@ export async function createDodoCheckout(payload = {}, request) {
       error: "Dodo checkout is not configured yet. Add the API key and product IDs in Vercel environment variables.",
       missing: [
         !apiKey ? "DODO_PAYMENTS_API_KEY" : "",
-        !productId ? plan.productEnv : "",
+        !productId ? `${plan.productEnv} or ${plan.fallbackProductEnv}` : "",
       ].filter(Boolean),
     };
   }
@@ -81,14 +72,13 @@ export async function createDodoCheckout(payload = {}, request) {
   const siteUrl = getSiteUrl(request);
   const checkoutPayload = {
     product_cart: [{ product_id: productId, quantity: 1 }],
-    allowed_payment_method_types: ["upi_collect", "upi_intent", "google_pay", "credit", "debit"],
     billing_currency: "INR",
     billing_address: {
       country: "IN",
       zipcode: "000000",
     },
     minimal_address: true,
-    return_url: `${siteUrl}/success.html?plan=${encodeURIComponent(planId)}&contact=${encodeURIComponent(contact)}&payment=dodo`,
+    return_url: `${siteUrl}/success.html?plan=pro&contact=${encodeURIComponent(contact)}&payment=dodo`,
     cancel_url: `${siteUrl}/#pricing`,
     short_link: true,
     metadata: {

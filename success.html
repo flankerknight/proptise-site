@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unlocked | Genius Prompts</title>
+    <title>Pro Dashboard | Genius Prompts</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,27 +18,26 @@
         <span class="brand-mark">GP</span>
         <span>
           <strong>Genius Prompts</strong>
-          <small>Unlocked</small>
+          <small>Pro dashboard</small>
         </span>
       </a>
-      <button class="header-action" id="resetCredits">Reset demo</button>
+      <a class="header-action" href="./index.html#pricing">Manage access</a>
     </header>
 
     <main class="unlock-main">
       <section class="unlock-hero">
         <div>
-          <p class="eyebrow">Payment submitted</p>
-          <h1>Your AI shortcut pack is unlocked.</h1>
+          <p class="eyebrow" id="accessEyebrow">Payment verified</p>
+          <h1 id="dashboardHeadline">Your Pro dashboard is active.</h1>
           <p class="hero-lede">
-            This is the paid-user dashboard. Solution credits are shared across every
-            category, so you can use them all in one area or spread them across finance,
+            Lifetime access unlocks the full Genius Prompts engine across finance,
             jobs, health, shopping, travel, creators, auto, and more.
           </p>
         </div>
         <aside class="credits-panel">
-          <span id="planName">Starter Pack</span>
-          <strong id="creditsRemaining">10</strong>
-          <small>solution credits remaining</small>
+          <span id="planName">Pro Lifetime</span>
+          <strong id="creditsRemaining">∞</strong>
+          <small id="accessStateLabel">secure access</small>
         </aside>
       </section>
 
@@ -46,7 +45,7 @@
         <div class="builder-panel">
           <div class="section-heading compact">
             <p class="eyebrow">Generate prompt</p>
-            <h2>Use one shared credit per expert AI request.</h2>
+            <h2>Generate expert AI requests whenever you need.</h2>
             <p>
               Pick any category, write what you need in normal words, choose a language,
               and the backend engine will choose the best prompt blueprint.
@@ -87,10 +86,10 @@
           <div class="lock-box">
             <span class="lock-icon">LIVE</span>
             <div>
-              <strong>Demo behavior</strong>
+              <strong>Account access</strong>
               <p>
-                This page uses browser storage for credits. Production should store
-                orders and unlocks in Supabase or another backend database.
+                Dodo checkout is the payment gateway. A database-backed login and webhook
+                should be added next for strict server-side account enforcement.
               </p>
             </div>
           </div>
@@ -116,7 +115,7 @@
 
     <footer class="site-footer">
       <strong>Genius Prompts</strong>
-      <span>Manual UPI verification MVP.</span>
+      <span>Secure checkout powered by Dodo Payments.</span>
       <nav class="footer-links" aria-label="Legal pages">
         <a href="./terms.html">Terms</a>
         <a href="./privacy.html">Privacy</a>

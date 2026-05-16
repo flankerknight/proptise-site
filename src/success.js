@@ -27,19 +27,19 @@ const categories = [
   "Finance & Investing",
 ];
 
-const plans = {
-  starter: { name: "Starter Pack", credits: 10 },
-  pro: { name: "Plus", credits: 25 },
-  complete: { name: "Pro", credits: 999 },
-};
+const plan = { name: "Pro Lifetime" };
 
 const languageOptions = ["English", "Hinglish", "Hindi"];
 
 const params = new URLSearchParams(window.location.search);
-const planId = params.get("plan") || "starter";
-const plan = plans[planId] || plans.starter;
-const storageKey = `genius-prompts-credits-${planId}`;
-const isAllAccess = planId === "complete";
+const contact = params.get("contact") || localStorage.getItem("genius-prompts-account-contact") || "";
+const returnedFromDodo = params.get("payment") === "dodo";
+const accessStorageKey = "genius-prompts-lifetime-access";
+if (returnedFromDodo) {
+  localStorage.setItem(accessStorageKey, "active");
+  if (contact) localStorage.setItem("genius-prompts-account-contact", contact);
+}
+const hasLifetimeAccess = localStorage.getItem(accessStorageKey) === "active";
 
 const categorySelect = document.querySelector("#unlockCategory");
 const languageSelect = document.querySelector("#unlockLanguage");
@@ -47,6 +47,9 @@ const intentInput = document.querySelector("#unlockIntent");
 const generateButton = document.querySelector("#generateUnlocked");
 const creditsRemaining = document.querySelector("#creditsRemaining");
 const planName = document.querySelector("#planName");
+const accessStateLabel = document.querySelector("#accessStateLabel");
+const accessEyebrow = document.querySelector("#accessEyebrow");
+const dashboardHeadline = document.querySelector("#dashboardHeadline");
 const unlockTitle = document.querySelector("#unlockTitle");
 const unlockMeta = document.querySelector("#unlockMeta");
 const unlockPrompt = document.querySelector("#unlockPrompt");
@@ -59,22 +62,6 @@ const promptHistory = document.querySelector("#promptHistory");
 const historyKey = "genius-prompts-history";
 let pendingMismatch = null;
 let allowMismatchOnce = false;
-
-function getCredits() {
-  if (isAllAccess) return plan.credits;
-  const stored = Number(localStorage.getItem(storageKey));
-  return Number.isFinite(stored) && stored >= 0 ? stored : plan.credits;
-}
-
-function setCredits(value) {
-  if (isAllAccess) {
-    localStorage.removeItem(storageKey);
-    creditsRemaining.textContent = "All";
-    return;
-  }
-  localStorage.setItem(storageKey, String(value));
-  creditsRemaining.textContent = String(value);
-}
 
 function renderCategoryOptions() {
   categorySelect.innerHTML = categories.map((category) => `<option value="${category}">${category}</option>`).join("");
@@ -153,19 +140,20 @@ function renderHistory() {
 }
 
 async function generatePrompt() {
+  if (!hasLifetimeAccess) {
+    unlockBadge.textContent = "Access required";
+    unlockTitle.textContent = "Complete payment first";
+    unlockMeta.textContent = "Pro Lifetime is not active in this browser.";
+    unlockPrompt.textContent = "Return to the homepage and complete secure Dodo checkout to unlock the prompt dashboard.";
+    return;
+  }
+
   const mismatch = getCategoryMismatch(categorySelect.value, intentInput.value);
   if (mismatch && !allowMismatchOnce) {
     showMismatch(mismatch);
     return;
   }
   allowMismatchOnce = false;
-
-  const currentCredits = getCredits();
-  if (!isAllAccess && currentCredits <= 0) {
-    unlockMeta.textContent = "No solution credits remaining";
-    unlockPrompt.textContent = "This pack has used all solution credits. Buy another pack to continue.";
-    return;
-  }
 
   generateButton.disabled = true;
   unlockBadge.textContent = categorySelect.value;
@@ -196,7 +184,6 @@ async function generatePrompt() {
       intent: intentInput.value,
       generatedPrompt: result.generatedPrompt,
     });
-    if (!isAllAccess) setCredits(currentCredits - 1);
   } catch (error) {
     unlockBadge.textContent = categorySelect.value;
     unlockTitle.textContent = "Generation failed";
@@ -218,12 +205,6 @@ languageSelect.addEventListener("change", () => {
 intentInput.addEventListener("input", () => {
   updateMismatchNote();
   resetGeneratedResult();
-});
-document.querySelector("#resetCredits").addEventListener("click", () => {
-  setCredits(plan.credits);
-  localStorage.removeItem(historyKey);
-  renderHistory();
-  resetGeneratedResult("Demo reset. Generate a fresh expert AI request.");
 });
 promptHistory.addEventListener("click", (event) => {
   const historyButton = event.target.closest("[data-history-index]");
@@ -312,7 +293,28 @@ copyButton.addEventListener("click", async () => {
   }
 });
 
-planName.textContent = plan.name;
-setCredits(getCredits());
+function renderAccessState() {
+  planName.textContent = plan.name;
+  creditsRemaining.textContent = "∞";
+
+  if (hasLifetimeAccess) {
+    accessEyebrow.textContent = "Payment verified";
+    dashboardHeadline.textContent = "Your Pro dashboard is active.";
+    accessStateLabel.textContent = "access active";
+    resetGeneratedResult("Click Generate expert AI request to build a fresh prompt.");
+    return;
+  }
+
+  accessEyebrow.textContent = "Payment required";
+  dashboardHeadline.textContent = "Complete checkout to unlock Pro.";
+  accessStateLabel.textContent = "payment required";
+  unlockBadge.textContent = "Locked";
+  unlockTitle.textContent = "Pro Lifetime is not active";
+  unlockMeta.textContent = contact ? `Account contact: ${contact}` : "No verified payment found.";
+  unlockPrompt.textContent = "This dashboard unlocks after successful Dodo payment. If you already paid, use the same browser after the payment redirect or contact support with your Dodo receipt.";
+  generateButton.disabled = true;
+}
+
 renderCategoryOptions();
 renderHistory();
+renderAccessState();

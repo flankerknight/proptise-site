@@ -1,9 +1,6 @@
 import { categoryPlaceholders, getCategoryMismatch } from "./intent-utils.js";
 
 const CONFIG = {
-  upiId: "ambar8@ptyes",
-  merchantName: "Genius Prompts",
-  currency: "INR",
   backendUrl: window.location.protocol === "file:" ? "http://localhost:8787" : window.location.origin,
 };
 
@@ -221,29 +218,13 @@ const promptLibrary = [
 
 const plans = [
   {
-    id: "starter",
-    name: "Starter Pack",
-    price: 169,
-    badge: "Students",
-    description: "10 expert AI requests for students, casual users, and first-time ChatGPT users.",
-    features: ["10 solution credits", "Use them in any category", "English, Hinglish, or Hindi", "Manual UPI unlock"],
-  },
-  {
     id: "pro",
-    name: "Plus",
+    name: "Pro Lifetime",
     price: 299,
-    badge: "Best value",
-    description: "25 expert AI requests for jobs, fitness, shopping, travel, money, and daily decisions.",
-    features: ["25 solution credits", "Use them wherever needed", "Problem-first prompt engine", "Better output formats"],
+    badge: "Lifetime access",
+    description: "One-time access to the full Genius Prompts engine across every category.",
+    features: ["Lifetime prompt engine access", "All 20 categories", "English, Hinglish, and Hindi", "Secure Dodo checkout"],
     featured: true,
-  },
-  {
-    id: "complete",
-    name: "Pro",
-    price: 499,
-    badge: "Creators",
-    description: "Unlimited expert AI requests for creators, freelancers, business owners, and heavy users.",
-    features: ["Unlimited requests", "No category limits", "Future updates ready", "Best for creators and teams"],
   },
 ];
 
@@ -268,10 +249,11 @@ const problemCards = [
   { label: "Compare phone cameras", category: "Digital Tools", intent: "which is best phone for photography and video shooting: iPhone 17 Pro Max or S26 Ultra" },
 ];
 
-let selectedPack = "starter";
-let selectedCheckoutPlan = "starter";
+let selectedPack = "pro";
+let selectedCheckoutPlan = "pro";
 const FREE_PREVIEW_LIMIT = 3;
 const freePreviewStorageKey = "genius-prompts-free-previews-used";
+const freePreviewCookieKey = "gp_free_previews_used";
 
 const categoryGrid = document.querySelector("#categoryGrid");
 const searchInput = document.querySelector("#categorySearch");
@@ -291,10 +273,7 @@ const checkoutTitle = document.querySelector("#checkoutTitle");
 const checkoutDescription = document.querySelector("#checkoutDescription");
 const checkoutAmount = document.querySelector("#checkoutAmount");
 const checkoutAccess = document.querySelector("#checkoutAccess");
-const upiIdLabel = document.querySelector("#upiIdLabel");
-const upiPayLink = document.querySelector("#upiPayLink");
 const dodoCheckoutButton = document.querySelector("#dodoCheckoutButton");
-const copyUpiIdButton = document.querySelector("#copyUpiId");
 const checkoutPlanInput = document.querySelector("#checkoutPlanInput");
 const checkoutContact = document.querySelector("#checkoutContact");
 const verificationNote = document.querySelector("#verificationNote");
@@ -322,7 +301,7 @@ function renderCategories() {
   const query = searchInput.value.trim().toLowerCase();
   const visible = categories.filter(({ name, detail, group }) => `${name} ${detail} ${group}`.toLowerCase().includes(query));
   const groups = [...new Set(visible.map((category) => category.group))];
-  const entitlement = selectedPack === "starter" ? "10 shared credits" : selectedPack === "pro" ? "25 shared credits" : "Unlimited access";
+  const entitlement = "Lifetime access";
 
   categoryGrid.innerHTML = groups
     .map((group) => {
@@ -373,11 +352,17 @@ function resetPreviewResult(message = "Click Generate Better Prompt to build a f
 
 function getFreePreviewCount() {
   const stored = Number(localStorage.getItem(freePreviewStorageKey));
-  return Number.isFinite(stored) && stored >= 0 ? stored : 0;
+  const cookieMatch = document.cookie.match(new RegExp(`(?:^|; )${freePreviewCookieKey}=([^;]*)`));
+  const cookieValue = cookieMatch ? Number(decodeURIComponent(cookieMatch[1])) : 0;
+  const count = Math.max(Number.isFinite(stored) ? stored : 0, Number.isFinite(cookieValue) ? cookieValue : 0);
+  if (count > 0 && stored !== count) localStorage.setItem(freePreviewStorageKey, String(count));
+  return count;
 }
 
 function setFreePreviewCount(value) {
-  localStorage.setItem(freePreviewStorageKey, String(value));
+  const nextValue = Math.max(0, value);
+  localStorage.setItem(freePreviewStorageKey, String(nextValue));
+  document.cookie = `${freePreviewCookieKey}=${encodeURIComponent(String(nextValue))}; max-age=31536000; path=/; SameSite=Lax`;
 }
 
 function getFreePreviewRemaining() {
@@ -519,7 +504,7 @@ async function updatePreview() {
 
 async function requestPreviewGeneration() {
   if (getFreePreviewRemaining() <= 0) {
-    resetPreviewResult("You have used your 3 free demo prompts. Choose a pack to keep generating expert AI requests.");
+    resetPreviewResult("You have used your 3 free demo prompts. Unlock Pro Lifetime to keep generating expert AI requests.");
     document.querySelector("#pricing").scrollIntoView({ behavior: "smooth" });
     renderFreePreviewStatus();
     return;
@@ -574,8 +559,8 @@ function renderPricing() {
         <ul>
           ${plan.features.map((feature) => `<li>${feature}</li>`).join("")}
         </ul>
-        <button class="${plan.featured ? "primary-action" : "secondary-action"} full-width" data-plan="${plan.id}">
-          Buy ${plan.name}
+        <button class="primary-action full-width" data-plan="${plan.id}">
+          Unlock for Rs ${plan.price}
         </button>
       </article>
     `,
@@ -584,26 +569,17 @@ function renderPricing() {
 }
 
 function openCheckout(planId) {
-  selectedCheckoutPlan = planId;
-  const plan = plans.find((item) => item.id === planId);
-  const transactionNote = `${plan.name} - Genius Prompts`;
-  const upiUrl = new URL("upi://pay");
-  upiUrl.searchParams.set("pa", CONFIG.upiId);
-  upiUrl.searchParams.set("pn", CONFIG.merchantName);
-  upiUrl.searchParams.set("am", String(plan.price));
-  upiUrl.searchParams.set("cu", CONFIG.currency);
-  upiUrl.searchParams.set("tn", transactionNote);
+  selectedCheckoutPlan = "pro";
+  const plan = plans.find((item) => item.id === "pro");
 
   checkoutTitle.textContent = `Buy ${plan.name}`;
   checkoutDescription.textContent = plan.description;
   checkoutAmount.textContent = `Rs ${plan.price}`;
   checkoutAccess.textContent = plan.name;
-  upiIdLabel.textContent = CONFIG.upiId;
-  upiPayLink.href = upiUrl.toString();
-  checkoutPlanInput.value = planId;
+  checkoutPlanInput.value = "pro";
   dodoCheckoutButton.disabled = false;
-  dodoCheckoutButton.textContent = "Pay by UPI or card";
-  setCheckoutNote("Dodo checkout supports UPI and card payments when configured. Manual UPI remains available as a fallback.");
+  dodoCheckoutButton.textContent = "Continue to secure payment";
+  setCheckoutNote("You will be redirected to Dodo Payments. After successful payment, return here to unlock the Pro dashboard.");
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
 }
@@ -619,10 +595,15 @@ function setCheckoutNote(message) {
 
 async function startDodoCheckout() {
   const contact = checkoutContact?.value?.trim() || "";
+  if (!contact) {
+    checkoutContact.focus();
+    setCheckoutNote("Enter your email or WhatsApp number so we can attach the purchase to your account.");
+    return;
+  }
   const originalLabel = dodoCheckoutButton.textContent;
   dodoCheckoutButton.disabled = true;
   dodoCheckoutButton.textContent = "Opening secure checkout...";
-  setCheckoutNote("Creating a secure Dodo checkout. If this is not configured yet, use the manual UPI fallback below.");
+  setCheckoutNote("Creating a secure Dodo checkout...");
 
   try {
     const response = await fetch(`${CONFIG.backendUrl}/api/create-checkout`, {
@@ -639,7 +620,11 @@ async function startDodoCheckout() {
     }
     window.location.href = result.checkoutUrl;
   } catch (error) {
-    setCheckoutNote(`${error.message} You can still pay manually with UPI and submit the reference number below.`);
+    if (/not configured/i.test(error.message)) {
+      setCheckoutNote("Dodo checkout is not configured on this deployment yet. Add the live API key and product ID in Vercel environment variables.");
+    } else {
+      setCheckoutNote(`${error.message} Please try again or contact support if payment does not open.`);
+    }
     dodoCheckoutButton.disabled = false;
     dodoCheckoutButton.textContent = originalLabel;
   }
@@ -652,11 +637,7 @@ document.addEventListener("click", (event) => {
   }
 
   const packButton = event.target.closest("[data-pack]");
-  if (packButton) {
-    selectedPack = packButton.dataset.pack;
-    document.querySelectorAll("[data-pack]").forEach((button) => button.classList.toggle("active", button === packButton));
-    renderCategories();
-  }
+  if (packButton) renderCategories();
 
   const categoryButton = event.target.closest("[data-category]");
   if (categoryButton) {
@@ -701,11 +682,9 @@ document.addEventListener("click", (event) => {
   }
 });
 
-document.querySelector("#verificationForm").addEventListener("submit", (event) => {
+document.querySelector("#checkoutForm").addEventListener("submit", (event) => {
   event.preventDefault();
-  const formData = new FormData(event.currentTarget);
-  const contact = encodeURIComponent(formData.get("contact") || "");
-  window.location.href = `./success.html?plan=${selectedCheckoutPlan}&contact=${contact}`;
+  startDodoCheckout();
 });
 
 searchInput.addEventListener("input", renderCategories);
@@ -734,19 +713,6 @@ copyPreviewButton.addEventListener("click", async () => {
     copyPreviewButton.textContent = "Copy sample";
   }, 1600);
 });
-dodoCheckoutButton.addEventListener("click", startDodoCheckout);
-copyUpiIdButton.addEventListener("click", async () => {
-  try {
-    await copyTextToClipboard(CONFIG.upiId);
-    copyUpiIdButton.textContent = "UPI ID copied";
-  } catch {
-    copyUpiIdButton.textContent = CONFIG.upiId;
-  }
-  setTimeout(() => {
-    copyUpiIdButton.textContent = "Copy UPI ID";
-  }, 1600);
-});
-
 window.addEventListener("scroll", () => {
   document.querySelector(".site-header").dataset.elevated = String(window.scrollY > 8);
 });

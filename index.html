@@ -52,7 +52,7 @@
             <span>3 free previews</span>
             <span>English, Hinglish, Hindi</span>
             <span>ChatGPT, Gemini, Claude, Perplexity</span>
-            <span>UPI ready</span>
+            <span>Secure Dodo checkout</span>
           </div>
         </div>
 
@@ -92,8 +92,8 @@
             </div>
             <div class="checkout-preview">
               <div>
-                <small>UPI checkout</small>
-                <strong>Manual or gateway</strong>
+                <small>Secure checkout</small>
+                <strong>Dodo Payments</strong>
               </div>
               <button data-scroll-to="pricing">Start</button>
             </div>
@@ -140,9 +140,9 @@
           <p class="eyebrow">Browse by category</p>
           <h2>Twenty categories are the backup path, not the whole product.</h2>
           <p>
-            Customers can still browse the full library, but credits stay flexible.
-            Use all credits in one category or move across jobs, finance, health,
-            shopping, travel, social media, auto, and more.
+            Customers can still browse the full library, but the product is now one
+            simple lifetime plan. Use it across jobs, finance, health, shopping,
+            travel, social media, auto, and more.
           </p>
         </div>
         <div class="category-tools">
@@ -150,15 +150,13 @@
             <span>Search categories</span>
             <input id="categorySearch" type="search" placeholder="Try cars, bikes, finance, jobs..." />
           </label>
-          <div class="pack-toggle" aria-label="Solution pack selector">
-            <button class="active" data-pack="starter">10 requests</button>
-            <button data-pack="pro">25 requests</button>
-            <button data-pack="complete">Unlimited</button>
+          <div class="pack-toggle single-plan-pill" aria-label="Current plan">
+            <button class="active" data-pack="pro">Pro Lifetime - Rs 299</button>
           </div>
         </div>
         <div class="credit-note">
-          <strong>Solution credits are shared across the whole toolkit.</strong>
-          <span>Example: the Starter Pack means 10 total expert AI requests, not 10 inside every category.</span>
+          <strong>One plan. Full prompt engine access.</strong>
+          <span>Buy once for Rs 299 and use Genius Prompts across every category.</span>
         </div>
         <div class="category-grid" id="categoryGrid"></div>
       </section>
@@ -203,24 +201,24 @@
           <div class="lock-box">
             <span class="lock-icon">LOCK</span>
             <div>
-              <strong>Full prompt unlocks after payment</strong>
+              <strong>Full prompt engine unlocks after payment</strong>
               <p>
                 Includes role, context, constraints, output format, follow-up questions,
                 and quality checks.
               </p>
             </div>
           </div>
-          <button class="primary-action full-width" data-scroll-to="pricing">Choose a pack</button>
+          <button class="primary-action full-width" data-scroll-to="pricing">Unlock lifetime access</button>
         </div>
       </section>
 
       <section class="section-panel" id="pricing">
         <div class="section-heading">
           <p class="eyebrow">Pricing</p>
-          <h2>Buy better AI answers, not random prompt text.</h2>
+          <h2>One lifetime plan. No confusing credits.</h2>
           <p>
-            Start cheap, upgrade when the toolkit saves you time. Each solution credit
-            becomes one expert AI request you can paste into ChatGPT, Gemini, Claude, or Perplexity.
+            Pay once, unlock the full prompt engine, and copy expert AI requests
+            into ChatGPT, Gemini, Claude, or Perplexity whenever you need them.
           </p>
         </div>
         <div class="pricing-grid" id="pricingGrid"></div>
@@ -260,60 +258,40 @@
           <h2 id="checkoutTitle">Complete your purchase</h2>
           <p id="checkoutDescription"></p>
         </div>
-        <div class="payment-box">
-          <div class="qr-card" aria-label="Genius Prompts UPI QR code">
-            <img src="./assets/genius-prompts-upi-qr.jpg" alt="Genius Prompts UPI QR code" />
-            <strong>Scan to pay</strong>
-            <small>UPI ID: ambar8@ptyes</small>
+        <div class="payment-box gateway-box">
+          <div class="gateway-card">
+            <span class="lock-icon">DODO</span>
+            <div>
+              <strong>Secure gateway payment</strong>
+              <p>Dodo Payments handles UPI, cards, taxes, receipts, and hosted checkout security.</p>
+            </div>
           </div>
           <div class="payment-details">
             <dl>
               <div>
                 <dt>Amount</dt>
-                <dd id="checkoutAmount">Rs 0</dd>
-              </div>
-              <div>
-                <dt>UPI ID</dt>
-                <dd id="upiIdLabel">ambar8@ptyes</dd>
+                <dd id="checkoutAmount">Rs 299</dd>
               </div>
               <div>
                 <dt>Access</dt>
-                <dd id="checkoutAccess">AI shortcut pack</dd>
+                <dd id="checkoutAccess">Lifetime Pro</dd>
+              </div>
+              <div>
+                <dt>Gateway</dt>
+                <dd>Dodo Payments</dd>
               </div>
             </dl>
-            <div class="payment-methods" aria-label="Payment options">
-              <button class="primary-action" id="dodoCheckoutButton" type="button">Pay by UPI or card</button>
-              <button class="secondary-action" id="copyUpiId" type="button">Copy UPI ID</button>
-              <a class="secondary-action link-action" id="upiPayLink" href="#">Open default UPI app</a>
-            </div>
-            <p class="form-note">
-              Pay securely with Dodo Payments when configured, or use manual UPI by scanning the QR / paying to the UPI ID.
-            </p>
           </div>
         </div>
-        <form class="verification-form" id="verificationForm" action="./success.html" method="get">
-          <input type="hidden" name="plan" id="checkoutPlanInput" value="starter" />
+        <form class="verification-form" id="checkoutForm">
+          <input type="hidden" name="plan" id="checkoutPlanInput" value="pro" />
           <label>
-            Payment app used
-            <select name="paymentApp" id="paymentApp">
-              <option value="Google Pay">Google Pay</option>
-              <option value="PhonePe">PhonePe</option>
-              <option value="Paytm">Paytm</option>
-              <option value="BHIM">BHIM</option>
-              <option value="Other UPI app">Other UPI app</option>
-            </select>
-          </label>
-          <label>
-            Email or WhatsApp
+            Account email or WhatsApp
             <input name="contact" id="checkoutContact" type="text" placeholder="example@email.com or +91..." required />
           </label>
-          <label>
-            UPI transaction ID
-            <input name="transaction" type="text" placeholder="Enter UPI reference number" required />
-          </label>
-          <button class="secondary-action full-width" type="submit">Submit and open unlocked dashboard</button>
+          <button class="primary-action full-width" id="dodoCheckoutButton" type="submit">Continue to secure payment</button>
           <p class="form-note" id="verificationNote">
-            Demo flow: this opens the post-payment dashboard. Production will verify the UPI reference before unlocking solution credits.
+            You will be redirected to Dodo Payments. After successful payment, return here to unlock the Pro dashboard.
           </p>
         </form>
       </section>
@@ -337,7 +315,7 @@
 
     <footer class="site-footer">
       <strong>Genius Prompts</strong>
-      <span>AI shortcuts for Indian users. Manual UPI verification MVP.</span>
+      <span>AI shortcuts for Indian users. Secure checkout powered by Dodo Payments.</span>
       <nav class="footer-links" aria-label="Legal pages">
         <a href="./terms.html">Terms</a>
         <a href="./privacy.html">Privacy</a>
