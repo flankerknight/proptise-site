@@ -12,6 +12,10 @@ const planCatalog = {
   },
 };
 
+function cleanEnvValue(value = "") {
+  return String(value).replace(/[\r\n\u2028\u2029]/g, "").trim();
+}
+
 function isEmail(value = "") {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
@@ -34,10 +38,10 @@ function getSiteUrl(request) {
 }
 
 export function getDodoConfig() {
-  const environment = process.env.DODO_PAYMENTS_ENVIRONMENT || "test_mode";
+  const environment = cleanEnvValue(process.env.DODO_PAYMENTS_ENVIRONMENT) || "test_mode";
   return {
-    apiKey: process.env.DODO_PAYMENTS_API_KEY || "",
-    baseUrl: process.env.DODO_PAYMENTS_BASE_URL || checkoutBaseUrls[environment] || checkoutBaseUrls.test_mode,
+    apiKey: cleanEnvValue(process.env.DODO_PAYMENTS_API_KEY),
+    baseUrl: cleanEnvValue(process.env.DODO_PAYMENTS_BASE_URL) || checkoutBaseUrls[environment] || checkoutBaseUrls.test_mode,
     environment,
   };
 }
@@ -50,7 +54,7 @@ export async function createDodoCheckout(payload = {}, request) {
   }
 
   const { apiKey, baseUrl, environment } = getDodoConfig();
-  const productId = process.env[plan.productEnv] || process.env[plan.fallbackProductEnv];
+  const productId = cleanEnvValue(process.env[plan.productEnv] || process.env[plan.fallbackProductEnv]);
   if (!apiKey || !productId) {
     return {
       ok: false,
@@ -114,7 +118,7 @@ export async function createDodoCheckout(payload = {}, request) {
   return {
     ok: true,
     status: 200,
-    checkoutUrl: result.checkout_url,
-    sessionId: result.session_id,
+    checkoutUrl: result.checkout_url || result.checkoutUrl || result.payment_link || result.url || result.checkout?.url,
+    sessionId: result.session_id || result.sessionId || result.id,
   };
 }
