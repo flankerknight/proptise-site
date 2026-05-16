@@ -4,9 +4,15 @@ function cleanEnvValue(value = "") {
   return String(value).replace(/[\r\n\u2028\u2029]/g, "").trim();
 }
 
+function normalizeSupabaseUrl(value = "") {
+  const cleaned = cleanEnvValue(value);
+  if (!cleaned) return "";
+  return cleaned.replace(/\/rest\/v1\/?$/i, "").replace(/\/$/, "");
+}
+
 export function getSupabaseConfig() {
   return {
-    url: cleanEnvValue(process.env.SUPABASE_URL),
+    url: normalizeSupabaseUrl(process.env.SUPABASE_URL),
     anonKey: cleanEnvValue(process.env.SUPABASE_ANON_KEY),
     serviceRoleKey: cleanEnvValue(process.env.SUPABASE_SERVICE_ROLE_KEY),
   };
