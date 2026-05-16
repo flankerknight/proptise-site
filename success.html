@@ -21,7 +21,7 @@
           <small>Pro dashboard</small>
         </span>
       </a>
-      <a class="header-action" href="./index.html#pricing">Manage access</a>
+      <a class="header-action" href="./index.html#pricing">Buy / manage access</a>
     </header>
 
     <main class="unlock-main">
@@ -52,6 +52,13 @@
             </p>
           </div>
           <div class="preview-controls">
+            <form class="auth-panel" id="dashboardLoginForm">
+              <label>
+                Account email
+                <input id="dashboardEmail" type="email" placeholder="you@example.com" />
+              </label>
+              <button class="secondary-action" type="submit">Send login link</button>
+            </form>
             <label>
               Category
               <select id="unlockCategory"></select>
@@ -86,10 +93,10 @@
           <div class="lock-box">
             <span class="lock-icon">LIVE</span>
             <div>
-              <strong>Account access</strong>
+              <strong>Database-backed account access</strong>
               <p>
-                Dodo checkout is the payment gateway. A database-backed login and webhook
-                should be added next for strict server-side account enforcement.
+                Dodo verifies payment through a webhook. Supabase stores the lifetime
+                entitlement against your user account.
               </p>
             </div>
           </div>
@@ -124,6 +131,7 @@
       </nav>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="module" src="./src/success.js"></script>
   </body>
 </html>

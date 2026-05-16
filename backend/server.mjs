@@ -3,7 +3,9 @@ import { readFile } from "node:fs/promises";
 import { dirname, extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createDodoCheckout } from "./dodo-checkout.mjs";
+import { handleDodoWebhook } from "./dodo-webhook.mjs";
 import { generateBestPrompt } from "./prompt-engine.mjs";
+import { getPublicSupabaseConfig, getAuthenticatedUser, ensureProfile, getActiveEntitlement, requireActiveEntitlement } from "./supabase-access.mjs";
 
 const rootDir = normalize(join(dirname(fileURLToPath(import.meta.url)), ".."));
 const port = Number(process.env.PORT || 8787);
@@ -22,7 +24,7 @@ function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization,webhook-id,webhook-timestamp,webhook-signature,svix-id,svix-timestamp,svix-signature",
     "Content-Type": "application/json; charset=utf-8",
   });
   response.end(JSON.stringify(payload, null, 2));
@@ -69,6 +71,11 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (request.url === "/api/config" && request.method === "GET") {
+    sendJson(response, 200, getPublicSupabaseConfig());
+    return;
+  }
+
   if (request.url === "/api/generate-prompt" && request.method === "POST") {
     try {
       const payload = JSON.parse(await readBody(request));
@@ -83,13 +90,55 @@ const server = createServer(async (request, response) => {
     return;
   }
 
+  if (request.url === "/api/generate-paid-prompt" && request.method === "POST") {
+    try {
+      await requireActiveEntitlement(request);
+      const payload = JSON.parse(await readBody(request));
+      if (!payload.category) {
+        sendJson(response, 400, { ok: false, error: "category is required" });
+        return;
+      }
+      sendJson(response, 200, generateBestPrompt(payload));
+    } catch (error) {
+      sendJson(response, error.status || 500, { ok: false, error: error.message, detail: error.detail });
+    }
+    return;
+  }
+
+  if (request.url === "/api/me/entitlement" && request.method === "GET") {
+    try {
+      const user = await getAuthenticatedUser(request);
+      await ensureProfile(user);
+      const entitlement = await getActiveEntitlement(user.id);
+      sendJson(response, 200, {
+        ok: true,
+        user: { id: user.id, email: user.email },
+        entitlement,
+        active: Boolean(entitlement),
+      });
+    } catch (error) {
+      sendJson(response, error.status || 500, { ok: false, error: error.message, missing: error.missing, detail: error.detail });
+    }
+    return;
+  }
+
   if (request.url === "/api/create-checkout" && request.method === "POST") {
     try {
       const payload = JSON.parse(await readBody(request));
       const result = await createDodoCheckout(payload, request);
       sendJson(response, result.status, result);
     } catch (error) {
-      sendJson(response, 500, { ok: false, error: "Checkout failed", detail: error.message });
+      sendJson(response, error.status || 500, { ok: false, error: error.message || "Checkout failed", missing: error.missing, detail: error.detail });
+    }
+    return;
+  }
+
+  if (request.url === "/api/dodo-webhook" && request.method === "POST") {
+    try {
+      const result = await handleDodoWebhook(await readBody(request), request.headers || {});
+      sendJson(response, 200, result);
+    } catch (error) {
+      sendJson(response, error.status || 500, { ok: false, error: error.message });
     }
     return;
   }

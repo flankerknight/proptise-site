@@ -1,3 +1,5 @@
+import { attachCheckoutToOrder, createPendingOrder, ensureProfile, getAuthenticatedUser, getActiveEntitlement } from "./supabase-access.mjs";
+
 const checkoutBaseUrls = {
   test_mode: "https://test.dodopayments.com",
   live_mode: "https://live.dodopayments.com",
@@ -53,6 +55,18 @@ export async function createDodoCheckout(payload = {}, request) {
     return { ok: false, status: 400, error: "Unknown plan selected." };
   }
 
+  const user = await getAuthenticatedUser(request);
+  await ensureProfile(user);
+  const existingEntitlement = await getActiveEntitlement(user.id);
+  if (existingEntitlement) {
+    return {
+      ok: true,
+      status: 200,
+      alreadyActive: true,
+      dashboardUrl: `${getSiteUrl(request)}/success.html`,
+    };
+  }
+
   const { apiKey, baseUrl, environment } = getDodoConfig();
   const productId = cleanEnvValue(process.env[plan.productEnv] || process.env[plan.fallbackProductEnv]);
   if (!apiKey || !productId) {
@@ -68,8 +82,9 @@ export async function createDodoCheckout(payload = {}, request) {
   }
 
   const contact = String(payload.contact || "").trim();
+  const order = await createPendingOrder(user, contact || user.email || "");
   const customer = {};
-  if (isEmail(contact)) customer.email = contact;
+  if (isEmail(contact || user.email)) customer.email = contact || user.email;
   const phone = normalizePhone(contact);
   if (phone) customer.phone_number = phone;
 
@@ -91,6 +106,9 @@ export async function createDodoCheckout(payload = {}, request) {
       plan_name: plan.name,
       credits: String(plan.credits),
       environment,
+      user_id: user.id,
+      order_id: order.id,
+      customer_email: user.email || contact,
     },
   };
 
@@ -115,10 +133,18 @@ export async function createDodoCheckout(payload = {}, request) {
     };
   }
 
-  return {
+  const checkout = {
     ok: true,
     status: 200,
     checkoutUrl: result.checkout_url || result.checkoutUrl || result.payment_link || result.url || result.checkout?.url,
     sessionId: result.session_id || result.sessionId || result.id,
   };
+  await attachCheckoutToOrder(order.id, {
+    sessionId: checkout.sessionId,
+    metadata: {
+      dodo_response: result,
+      checkout_url_created: Boolean(checkout.checkoutUrl),
+    },
+  });
+  return checkout;
 }

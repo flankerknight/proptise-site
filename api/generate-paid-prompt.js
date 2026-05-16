@@ -1,4 +1,5 @@
-import { createDodoCheckout } from "../backend/dodo-checkout.mjs";
+import { generateBestPrompt } from "../backend/prompt-engine.mjs";
+import { requireActiveEntitlement } from "../backend/supabase-access.mjs";
 
 function sendJson(response, statusCode, payload) {
   response.statusCode = statusCode;
@@ -16,15 +17,23 @@ export default async function handler(request, response) {
   }
 
   if (request.method !== "POST") {
-    sendJson(response, 405, { error: "Method not allowed" });
+    sendJson(response, 405, { ok: false, error: "Method not allowed" });
     return;
   }
 
   try {
+    await requireActiveEntitlement(request);
     const payload = typeof request.body === "object" && request.body ? request.body : JSON.parse(request.body || "{}");
-    const result = await createDodoCheckout(payload, request);
-    sendJson(response, result.status, result);
+    if (!payload.category) {
+      sendJson(response, 400, { ok: false, error: "category is required" });
+      return;
+    }
+    sendJson(response, 200, generateBestPrompt(payload));
   } catch (error) {
-    sendJson(response, error.status || 500, { ok: false, error: error.message || "Checkout failed", missing: error.missing, detail: error.detail });
+    sendJson(response, error.status || 500, {
+      ok: false,
+      error: error.message || "Prompt generation failed",
+      detail: error.detail,
+    });
   }
 }

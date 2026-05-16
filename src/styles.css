@@ -644,6 +644,27 @@ select:focus {
   flex: 1 1 220px;
 }
 
+.auth-panel {
+  flex: 1 1 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.8rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fffdf8;
+}
+
+.auth-panel[hidden] {
+  display: none;
+}
+
+.auth-panel label {
+  margin: 0;
+  min-width: min(100%, 260px);
+}
+
 .preview-controls .intent-control {
   flex-basis: 100%;
 }

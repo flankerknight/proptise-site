@@ -1,4 +1,5 @@
 import { categoryPlaceholders, getCategoryMismatch } from "./intent-utils.js";
+import { getAuthState, sendLoginLink } from "./auth-client.js";
 
 const CONFIG = {
   backendUrl: window.location.protocol === "file:" ? "http://localhost:8787" : window.location.origin,
@@ -31,20 +32,17 @@ const plan = { name: "Pro Lifetime" };
 
 const languageOptions = ["English", "Hinglish", "Hindi"];
 
-const params = new URLSearchParams(window.location.search);
-const contact = params.get("contact") || localStorage.getItem("genius-prompts-account-contact") || "";
-const returnedFromDodo = params.get("payment") === "dodo";
-const accessStorageKey = "genius-prompts-lifetime-access";
-if (returnedFromDodo) {
-  localStorage.setItem(accessStorageKey, "active");
-  if (contact) localStorage.setItem("genius-prompts-account-contact", contact);
-}
-const hasLifetimeAccess = localStorage.getItem(accessStorageKey) === "active";
+const returnedFromDodo = new URLSearchParams(window.location.search).get("payment") === "dodo";
+let authState = { configured: false, session: null, user: null, token: "" };
+let hasLifetimeAccess = false;
+let entitlementPollsRemaining = returnedFromDodo ? 8 : 0;
 
 const categorySelect = document.querySelector("#unlockCategory");
 const languageSelect = document.querySelector("#unlockLanguage");
 const intentInput = document.querySelector("#unlockIntent");
 const generateButton = document.querySelector("#generateUnlocked");
+const dashboardLoginForm = document.querySelector("#dashboardLoginForm");
+const dashboardEmail = document.querySelector("#dashboardEmail");
 const creditsRemaining = document.querySelector("#creditsRemaining");
 const planName = document.querySelector("#planName");
 const accessStateLabel = document.querySelector("#accessStateLabel");
@@ -143,8 +141,8 @@ async function generatePrompt() {
   if (!hasLifetimeAccess) {
     unlockBadge.textContent = "Access required";
     unlockTitle.textContent = "Complete payment first";
-    unlockMeta.textContent = "Pro Lifetime is not active in this browser.";
-    unlockPrompt.textContent = "Return to the homepage and complete secure Dodo checkout to unlock the prompt dashboard.";
+    unlockMeta.textContent = authState.user?.email ? `Signed in as ${authState.user.email}` : "No signed-in account.";
+    unlockPrompt.textContent = "Sign in and complete secure Dodo checkout to unlock this dashboard.";
     return;
   }
 
@@ -162,9 +160,12 @@ async function generatePrompt() {
   unlockPrompt.textContent = "Matching your request to the best backend blueprint...";
 
   try {
-    const response = await fetch(`${CONFIG.backendUrl}/api/generate-prompt`, {
+    const response = await fetch(`${CONFIG.backendUrl}/api/generate-paid-prompt`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authState.token}`,
+      },
       body: JSON.stringify({
         category: categorySelect.value,
         intent: intentInput.value,
@@ -192,6 +193,25 @@ async function generatePrompt() {
   } finally {
     generateButton.disabled = false;
   }
+}
+
+async function fetchEntitlement() {
+  authState = await getAuthState();
+  if (!authState.configured) {
+    return { active: false, error: "Supabase login is not configured on this deployment yet." };
+  }
+  if (!authState.session) {
+    return { active: false, error: "Sign in with the same email used at checkout." };
+  }
+
+  const response = await fetch(`${CONFIG.backendUrl}/api/me/entitlement`, {
+    headers: { Authorization: `Bearer ${authState.token}` },
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    return { active: false, error: result.error || "Could not verify account access." };
+  }
+  return result;
 }
 
 generateButton.addEventListener("click", generatePrompt);
@@ -301,20 +321,57 @@ function renderAccessState() {
     accessEyebrow.textContent = "Payment verified";
     dashboardHeadline.textContent = "Your Pro dashboard is active.";
     accessStateLabel.textContent = "access active";
+    dashboardLoginForm.hidden = true;
     resetGeneratedResult("Click Generate expert AI request to build a fresh prompt.");
     return;
   }
 
-  accessEyebrow.textContent = "Payment required";
-  dashboardHeadline.textContent = "Complete checkout to unlock Pro.";
+  accessEyebrow.textContent = returnedFromDodo ? "Payment processing" : "Sign in required";
+  dashboardHeadline.textContent = returnedFromDodo ? "Verifying your lifetime access." : "Sign in to check your Pro access.";
   accessStateLabel.textContent = "payment required";
   unlockBadge.textContent = "Locked";
-  unlockTitle.textContent = "Pro Lifetime is not active";
-  unlockMeta.textContent = contact ? `Account contact: ${contact}` : "No verified payment found.";
-  unlockPrompt.textContent = "This dashboard unlocks after successful Dodo payment. If you already paid, use the same browser after the payment redirect or contact support with your Dodo receipt.";
+  unlockTitle.textContent = returnedFromDodo ? "Waiting for Dodo webhook" : "Pro Lifetime is not active";
+  unlockMeta.textContent = authState.user?.email ? `Signed in as ${authState.user.email}` : "No signed-in account.";
+  unlockPrompt.textContent = returnedFromDodo
+    ? "If payment succeeded, access will appear here after Dodo confirms it through the webhook."
+    : "Sign in with your purchase email. If no active purchase is found, return to pricing and complete checkout.";
   generateButton.disabled = true;
+  dashboardLoginForm.hidden = false;
+  if (authState.user?.email) dashboardEmail.value = authState.user.email;
 }
+
+async function refreshEntitlement({ poll = false } = {}) {
+  unlockMeta.textContent = "Checking account access...";
+  const result = await fetchEntitlement();
+  hasLifetimeAccess = Boolean(result.active);
+  renderAccessState();
+
+  if (!hasLifetimeAccess && result.error) {
+    unlockMeta.textContent = result.error;
+  }
+
+  if (!hasLifetimeAccess && poll && entitlementPollsRemaining > 0) {
+    entitlementPollsRemaining -= 1;
+    setTimeout(() => refreshEntitlement({ poll: true }), 2500);
+  }
+}
+
+dashboardLoginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const email = dashboardEmail.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    unlockMeta.textContent = "Enter a valid email address.";
+    return;
+  }
+  unlockMeta.textContent = "Sending secure login link...";
+  try {
+    await sendLoginLink(email, "/success.html");
+    unlockMeta.textContent = "Login link sent. Open it from your email, then return to this dashboard.";
+  } catch (error) {
+    unlockMeta.textContent = error.message || "Could not send login link.";
+  }
+});
 
 renderCategoryOptions();
 renderHistory();
-renderAccessState();
+refreshEntitlement({ poll: returnedFromDodo });

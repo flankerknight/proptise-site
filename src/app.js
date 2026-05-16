@@ -1,4 +1,5 @@
 import { categoryPlaceholders, getCategoryMismatch } from "./intent-utils.js";
+import { getAuthState, sendLoginLink, signOut } from "./auth-client.js";
 
 const CONFIG = {
   backendUrl: window.location.protocol === "file:" ? "http://localhost:8787" : window.location.origin,
@@ -579,7 +580,7 @@ function openCheckout(planId) {
   checkoutPlanInput.value = "pro";
   dodoCheckoutButton.disabled = false;
   dodoCheckoutButton.textContent = "Continue to secure payment";
-  setCheckoutNote("You will be redirected to Dodo Payments. After successful payment, return here to unlock the Pro dashboard.");
+  setCheckoutNote("Use your email account for lifetime access. If you are not signed in, we will send a secure login link first.");
   modal.setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
 }
@@ -595,26 +596,56 @@ function setCheckoutNote(message) {
 
 async function startDodoCheckout() {
   const contact = checkoutContact?.value?.trim() || "";
-  if (!contact) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) {
     checkoutContact.focus();
-    setCheckoutNote("Enter your email or WhatsApp number so we can attach the purchase to your account.");
+    setCheckoutNote("Enter a valid email. This email becomes your lifetime-access account.");
     return;
   }
   const originalLabel = dodoCheckoutButton.textContent;
   dodoCheckoutButton.disabled = true;
   dodoCheckoutButton.textContent = "Opening secure checkout...";
-  setCheckoutNote("Creating a secure Dodo checkout...");
+  setCheckoutNote("Checking your signed-in account...");
 
   try {
+    const auth = await getAuthState();
+    if (!auth.configured) {
+      throw new Error("Supabase login is not configured on this deployment yet.");
+    }
+
+    if (!auth.session) {
+      await sendLoginLink(contact, "/index.html#pricing");
+      setCheckoutNote("Login link sent. Open it from your email, then come back and click Continue to secure payment again.");
+      dodoCheckoutButton.disabled = false;
+      dodoCheckoutButton.textContent = "I opened the login link - continue";
+      return;
+    }
+
+    if ((auth.user?.email || "").toLowerCase() !== contact.toLowerCase()) {
+      await signOut();
+      await sendLoginLink(contact, "/index.html#pricing");
+      setCheckoutNote(`You were signed in as ${auth.user?.email}. I sent a fresh login link to ${contact}. Open it, then continue checkout.`);
+      dodoCheckoutButton.disabled = false;
+      dodoCheckoutButton.textContent = "I opened the login link - continue";
+      return;
+    }
+
+    setCheckoutNote("Creating a secure Dodo checkout for your account...");
     const response = await fetch(`${CONFIG.backendUrl}/api/create-checkout`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${auth.token}`,
+      },
       body: JSON.stringify({
         planId: selectedCheckoutPlan,
-        contact,
+        contact: auth.user?.email || contact,
       }),
     });
     const result = await response.json();
+    if (result.alreadyActive && result.dashboardUrl) {
+      window.location.href = result.dashboardUrl;
+      return;
+    }
     if (!response.ok || !result.checkoutUrl) {
       throw new Error(result.error || "Dodo checkout is not available yet.");
     }
